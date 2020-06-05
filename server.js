@@ -2,6 +2,7 @@ const express = require('express');
 const server = express();
 const helmet = require('helmet');
 const userRouter = require('./users/userRouter');
+const colors = require('colors');
 
 server.use(logger);
 server.use(helmet());
