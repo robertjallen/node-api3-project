@@ -3,8 +3,22 @@ const db = require('./userDb.js');
 
 const router = express.Router();
 
+//------------------------------------------------------------------------
+//                     CREATE  (new user)
+//------------------------------------------------------------------------
+// /api/users
 router.post('/', (req, res) => {
-  // do your magic!
+  // console.log(req.body);
+  db.insert(req.body)
+  .then(user => {
+    res.status(201).json(user);
+  })
+  .catch(error => {
+    console.log(error);
+    res.status(500).json({
+      message: 'Error adding the User',
+    });
+  });
 });
 
 router.post('/:id/posts', (req, res) => {
@@ -29,6 +43,9 @@ router.get('/', (req, res) => {
 });
 
 // /api/users/:id
+//=====================================================
+//    READ              USER BY ID
+//=====================================================
 router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user);
 });
@@ -64,11 +81,11 @@ function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-  // do your magic!
+
 }
 
 function validatePost(req, res, next) {
-  // do your magic!
+  
 }
 
 module.exports = router;

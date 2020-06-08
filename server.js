@@ -6,7 +6,7 @@ const colors = require('colors');
 
 server.use(logger);
 server.use(helmet());
-
+server.use(express.json())
 server.use('/api/users', userRouter);
 
 server.get('/', (req, res) => {
