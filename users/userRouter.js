@@ -20,8 +20,11 @@ router.post('/', validateUser, (req, res) => {
     });
   });
 });
-
-router.post('/:id/posts', (req, res) => {
+//------------------------------------------------------------------------
+//                     CREATE  (post)
+//------------------------------------------------------------------------
+// /api/users/:id/posts
+router.post('/:id/posts', validateUserId, (req, res) => {
   // do your magic!
 });
 
@@ -44,14 +47,17 @@ router.get('/', (req, res) => {
 
 // /api/users/:id
 //=====================================================
-//    READ              USER BY ID
+//    READ   USER BY ID
 //=====================================================
 router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user);
 });
-
+// /api/users/:id
+//=====================================================
+//    READ     posts       BY  USERID
+//=====================================================
 router.get('/:id/posts', validateUserId, (req, res) => {
-  db.getUserPosts(req.user)
+  db.getUserPosts(req.params.id)
   .then(posts => {
     res.status(200).json(posts)
   })
