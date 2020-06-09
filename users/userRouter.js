@@ -7,7 +7,7 @@ const router = express.Router();
 //                     CREATE  (new user)
 //------------------------------------------------------------------------
 // /api/users
-router.post('/', (req, res) => {
+router.post('/', validateUser, (req, res) => {
   // console.log(req.body);
   db.insert(req.body)
   .then(user => {
@@ -50,8 +50,11 @@ router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user);
 });
 
-router.get('/:id/posts', (req, res) => {
-  // do your magic!
+router.get('/:id/posts', validateUserId, (req, res) => {
+  db.getUserPosts(req.user)
+  .then(posts => {
+    res.status(200).json(posts)
+  })
 });
 
 router.delete('/:id', (req, res) => {
@@ -81,7 +84,11 @@ function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-
+  if(req.body && req.body.name){
+    next()
+  }else{
+    res.status(400).json({ message: "missing user data" })
+  }
 }
 
 function validatePost(req, res, next) {
