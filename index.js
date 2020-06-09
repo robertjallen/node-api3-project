@@ -1,6 +1,6 @@
 // code away!
 const app = require('./server');
-var catMe = require('cat-me')
+var catMe = require('cat-me');
 var colors = require('colors');
 
 const PORT = 4000;

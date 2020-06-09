@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('./userDb.js');
+const postDb = require('../posts/postDb');
 
 const router = express.Router();
 
@@ -24,9 +25,20 @@ router.post('/', validateUser, (req, res) => {
 //                     CREATE  (post)
 //------------------------------------------------------------------------
 // /api/users/:id/posts
-router.post('/:id/posts', validateUserId, (req, res) => {
-  // do your magic!
-});
+router.post("/:id/posts", validateUserId(), validatePost(),
+	async (req, res) => {
+		try {
+			const post = req.body;
+			console.log("post: ", post);
+			res.status(201).json(await postDb.insert(post));
+		} catch (error) {
+			res.status(500).json({
+				error,
+				errorMessage: "There was an error while saving the post to the database"
+			});
+		}
+	}
+);
 
 //------------------------------------------------------------------------
 //                     READ
@@ -52,7 +64,8 @@ router.get('/', (req, res) => {
 router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user);
 });
-// /api/users/:id
+
+// /api/users/:id/posts
 //=====================================================
 //    READ     posts       BY  USERID
 //=====================================================
@@ -73,20 +86,24 @@ router.put('/:id', (req, res) => {
 
 //custom middleware
 
-function validateUserId(req, res, next) {
-  const id = req.params.id
-  db.getById(id)
-  .then(user => {
-    if(user){
-      req.user = user;
-      next();
-    }else{
-      res.status(404).json({message: "cannot find user"})
-    }
-  })
-  .catch(err => {
-    res.status(500).json({message: "failed", err})
-  })
+function validateUserId() {
+	return (req, res, next) => {
+		db
+			.getById(req.params.id)
+			.then(user => {
+				if (user) {
+					req.user = user;
+					next();
+				} else {
+					res
+						.status(404)
+						.json({ message: `User with id ${req.params.id} does not exist` });
+				}
+			})
+			.catch(err => {
+				next(err);
+			});
+	};
 }
 
 function validateUser(req, res, next) {
@@ -97,8 +114,22 @@ function validateUser(req, res, next) {
   }
 }
 
-function validatePost(req, res, next) {
-  
+function validatePost() {
+	return (req, res, next) => {
+		db
+			.getUserPosts(req.params.id)
+			.then(post => {
+				if (post.length < 1) {
+					res.status(404).json({ message: "This user does not have a post." });
+				} else {
+					req.post = post;
+					next();
+				}
+			})
+			.catch(err => {
+				next(err);
+			});
+	};
 }
 
 module.exports = router;
