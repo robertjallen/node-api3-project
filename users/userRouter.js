@@ -30,7 +30,7 @@ router.post("/:id/posts", validateUserId(), (req, res) => {
   if(!req.body.text){
     return res.status(400).json({message: "need text field"})
   }
-  postDb.update(req.params.id, req.body)
+  postDb.insert(req.body)
   .then((posts) => {
      res.status(201).json(posts)
   })
