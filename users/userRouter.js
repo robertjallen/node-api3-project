@@ -24,21 +24,21 @@ router.post('/', validateUser, (req, res) => {
 //------------------------------------------------------------------------
 //                     CREATE  (post)
 //------------------------------------------------------------------------
-// /api/users/:id/posts
-router.post("/:id/posts", validateUserId(), validatePost(),
-	async (req, res) => {
-		try {
-			const post = req.body;
-			console.log("post: ", post);
-			res.status(201).json(await postDb.insert(post));
-		} catch (error) {
-			res.status(500).json({
-				error,
-				errorMessage: "There was an error while saving the post to the database"
-			});
-		}
-	}
-);
+// /api/users/:id/posts 
+// postDb.update(req.params.id, req.body)
+router.post("/:id/posts", validateUserId(), (req, res) => {
+  if(!req.body.text){
+    return res.status(400).json({message: "need text field"})
+  }
+  postDb.update(req.params.id, req.body)
+  .then((posts) => {
+     res.status(201).json(posts)
+  })
+  .catch((error) =>{
+    console.log(error)
+    res.status(500).json({message: "cant create new user post"})
+  })
+})
 
 //------------------------------------------------------------------------
 //                     READ
@@ -61,7 +61,7 @@ router.get('/', (req, res) => {
 //=====================================================
 //    READ   USER BY ID
 //=====================================================
-router.get('/:id', validateUserId, (req, res) => {
+router.get('/:id', validateUserId(), (req, res) => {
   res.status(200).json(req.user);
 });
 
@@ -69,15 +69,18 @@ router.get('/:id', validateUserId, (req, res) => {
 //=====================================================
 //    READ     posts       BY  USERID
 //=====================================================
-router.get('/:id/posts', validateUserId, (req, res) => {
+router.get('/:id/posts', validateUserId(), (req, res) => {
   db.getUserPosts(req.params.id)
   .then(posts => {
     res.status(200).json(posts)
   })
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+router.delete('/:id', validateUserId(), (req, res) => {
+  db.remove(req.params.id)
+  .then(user => {
+    res.status(200).json(user)
+  })
 });
 
 router.put('/:id', (req, res) => {
@@ -88,16 +91,13 @@ router.put('/:id', (req, res) => {
 
 function validateUserId() {
 	return (req, res, next) => {
-		db
-			.getById(req.params.id)
+		db.getById(req.params.id)
 			.then(user => {
 				if (user) {
 					req.user = user;
 					next();
 				} else {
-					res
-						.status(404)
-						.json({ message: `User with id ${req.params.id} does not exist` });
+					res.status(404).json({ message: `User with id ${req.params.id} does not exist` });
 				}
 			})
 			.catch(err => {
@@ -116,8 +116,7 @@ function validateUser(req, res, next) {
 
 function validatePost() {
 	return (req, res, next) => {
-		db
-			.getUserPosts(req.params.id)
+		db.getUserPosts(req.params.id)
 			.then(post => {
 				if (post.length < 1) {
 					res.status(404).json({ message: "This user does not have a post." });
