@@ -83,8 +83,11 @@ router.delete('/:id', validateUserId(), (req, res) => {
   })
 });
 
-router.put('/:id', (req, res) => {
-  // do your magic!
+router.put('/:id', validateUserId(), (req, res) => {
+  db.update(req.params.id, req.body)
+  .then(user => {
+    res.status(200).json(user)
+  })
 });
 
 //custom middleware
@@ -106,12 +109,15 @@ function validateUserId() {
 	};
 }
 
-function validateUser(req, res, next) {
-  if(req.body && req.body.name){
-    next()
-  }else{
-    res.status(400).json({ message: "missing user data" })
+function validateUser() {
+  return (req, res, next) => {
+    if(req.body && req.body.name){
+      next()
+    }else{
+      res.status(400).json({ message: "missing user data" })
+    }
   }
+  
 }
 
 function validatePost() {
