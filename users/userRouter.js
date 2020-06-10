@@ -75,14 +75,20 @@ router.get('/:id/posts', validateUserId(), (req, res) => {
     res.status(200).json(posts)
   })
 });
-
+// /api/users/:id
+//=====================================================
+//    DELETE    user       BY  USERID
+//=====================================================
 router.delete('/:id', validateUserId(), (req, res) => {
   db.remove(req.params.id)
   .then(user => {
     res.status(200).json(user)
   })
 });
-
+// /api/users/:id
+//=====================================================
+//    UPDATE    user       BY  USERID
+//=====================================================
 router.put('/:id', validateUserId(), (req, res) => {
   db.update(req.params.id, req.body)
   .then(user => {
