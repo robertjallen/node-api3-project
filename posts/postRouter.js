@@ -26,12 +26,26 @@ router.get('/:id', validatePostId(), (req, res) => {
   })
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+router.delete('/:id', validatePostId(), (req, res) => {
+  db.remove(req.params.id)
+  .then(post => {
+    res.status(200).json(post)
+  })
+  .catch(err => {
+    res.status(500).json({message: "Error retrieving post"})
+  })
 });
 
 router.put('/:id', (req, res) => {
-  // do your magic!
+  db.update(req.params.id, req.body)
+  .then(post => {
+    if(post){
+      return res.status(200).json(post)
+    }
+  })
+  .catch(err => {
+    res.status(500).json({message: "Error retrieving post"})
+  })
 });
 
 // custom middleware
