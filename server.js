@@ -1,7 +1,7 @@
 const express = require('express');
 const server = express();
 const helmet = require('helmet');
-var cors = require('cors')
+
 const userRouter = require('./users/userRouter');
 const postsRouter = require('./posts/postRouter');
 const colors = require('colors');
@@ -9,7 +9,7 @@ const colors = require('colors');
 server.use(logger);
 server.use(helmet());
 server.use(express.json())
-server.use(cors());
+
 server.use('/api/users', userRouter);
 server.use('/posts', postsRouter);
 
