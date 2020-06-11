@@ -8,7 +8,7 @@ const router = express.Router();
 //                     CREATE  (new user)
 //------------------------------------------------------------------------
 // /api/users
-router.post('/', validateUser, (req, res) => {
+router.post('/', validateUser(), (req, res) => {
   // console.log(req.body);
   db.insert(req.body)
   .then(user => {

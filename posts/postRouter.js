@@ -29,7 +29,7 @@ router.get('/:id', validatePostId(), (req, res) => {
 router.delete('/:id', validatePostId(), (req, res) => {
   db.remove(req.params.id)
   .then(post => {
-    res.status(200).json(post)
+    res.status(200).json({message: req.params.id }, post)
   })
   .catch(err => {
     res.status(500).json({message: "Error retrieving post"})
