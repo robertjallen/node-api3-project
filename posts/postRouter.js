@@ -1,27 +1,70 @@
 const express = require('express');
-
+const db = require('./postDb');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  // do your magic!
+  db.get()
+  .then(posts =>{
+    if(posts){
+    return  res.status(200).json(posts)
+    }
+  })
+  .catch( err => {
+    res.status(500).json({message: "error retrieving posts"})
+  })
 });
 
-router.get('/:id', (req, res) => {
-  // do your magic!
+router.get('/:id', validatePostId(), (req, res) => {
+  db.getById(req.params.id)
+  .then(posts => {
+    if(posts){
+      return res.status(200).json(posts)
+    }
+  })
+  .catch(err => {
+    res.status(500).json({message: "Error retrieving post"})
+  })
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+router.delete('/:id', validatePostId(), (req, res) => {
+  db.remove(req.params.id)
+  .then(post => {
+    res.status(200).json({postID: req.params.id, post: post })
+  })
+  .catch(err => {
+    res.status(500).json({message: "Error retrieving post"})
+  })
 });
 
 router.put('/:id', (req, res) => {
-  // do your magic!
+  db.update(req.params.id, req.body)
+  .then(post => {
+    if(post){
+      return res.status(200).json(post)
+    }
+  })
+  .catch(err => {
+    res.status(500).json({message: "Error retrieving post"})
+  })
 });
 
 // custom middleware
 
 function validatePostId(req, res, next) {
-  // do your magic!
+  return (req, res, next) => {
+		db.getById(req.params.id)
+			.then(post => {
+				if (post) {
+					req.post = post;
+					next();
+				} else {
+					res.status(404).json({ message: `Post with id ${req.params.id} does not exist` });
+				}
+			})
+			.catch(err => {
+				next(err);
+			});
+	};
 }
 
 module.exports = router;
